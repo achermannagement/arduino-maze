@@ -68,7 +68,9 @@ void enter_dir(Direction d){
 void lose(void){
   lcd.clear();
   lcd.setCursor( 0, 0 );
-  lcd.print("LOSER! Press reset button");
+  lcd.print("LOSER!");
+  lcd.setCursor( 0, 1 );
+  lcd.print("Press reset button");
   while(true){}
 }
 
@@ -184,7 +186,9 @@ void loop()
           if(win){
             lcd.begin( 16, 2 );
             lcd.setCursor( 0, 0 );
-            lcd.print("IMPORTANT MESSAGE");
+            lcd.print("NOTE YOUR EMERGENC");
+            lcd.setCursor( 0, 1 );
+            lcd.print("Y EXITS");
             while(true){}
           } else {
             lose();
