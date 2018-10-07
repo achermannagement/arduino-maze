@@ -186,9 +186,9 @@ void loop()
           if(win){
             lcd.begin( 16, 2 );
             lcd.setCursor( 0, 0 );
-            lcd.print("NOTE YOUR EMERGENC");
+            lcd.print("NOTE YOUR EMER");
             lcd.setCursor( 0, 1 );
-            lcd.print("Y EXITS");
+            lcd.print("GENCY EXITS");
             while(true){}
           } else {
             lose();
