@@ -12,6 +12,8 @@
 --------------------------------------------------------------------------------------*/
 #include <Wire.h>
 #include <LiquidCrystal.h>   // include LCD library
+
+#include "maze.h"
 /*--------------------------------------------------------------------------------------
   Defines
 --------------------------------------------------------------------------------------*/
@@ -47,32 +49,7 @@ byte buttonWas          = BUTTON_NONE;   //used by ReadButtons() for detection o
 --------------------------------------------------------------------------------------*/
 LiquidCrystal lcd( 8, 9, 4, 5, 6, 7 );   //Pins for the freetronics 16x2 LCD shield. LCD: ( RS, E, LCD-D4, LCD-D5, LCD-D6, LCD-D7 )
 
-
-const int MAX_MAZE_SIZE = 25;
-
-enum Direction {
-  NORTH,
-  EAST,
-  SOUTH,
-  WEST,
-  NONE
-};
-
 byte ReadButtons(void);
-Direction maze[] = {SOUTH, EAST, NORTH, WEST, NORTH, EAST, SOUTH, WEST, SOUTH, WEST, NORTH, EAST, NORTH, WEST, SOUTH, EAST, NORTH, WEST, NORTH, EAST, NORTH, WEST, NORTH, EAST, SOUTH};
-Direction guess[MAX_MAZE_SIZE];
-int8_t guess_index;
-
-void enter_dir(Direction d);
-void enter_dir(Direction d){
-  if(d != NONE){
-    if(guess_index == MAX_MAZE_SIZE){
-      lose();
-    }
-    guess[guess_index] = d;
-    guess_index++;
-  } 
-}
 
 void lose(void){
   lcd.clear();
@@ -90,7 +67,7 @@ void print_guess(void){
     if(i == 16){ // lcd is 16 char per line
       lcd.setCursor(0, 1);
     }
-    switch(guess[i]){
+    switch(get_guess(i)){
       case NORTH:
         lcd.print("N");
       break;
@@ -133,10 +110,7 @@ void setup()
    //          1234567890123456
    lcd.print( "Btn:" );*/
    Serial.begin(9600);
-   for(int i = 0; i < MAX_MAZE_SIZE; i++){
-    guess[i] = NONE;
-   }
-   guess_index = 0;
+   maze_init();
 }
 /*--------------------------------------------------------------------------------------
   loop()
@@ -154,15 +128,15 @@ void loop()
    {
 
     Direction d;
-   
+
    //show text label for the button pressed
    switch( button )
    {
       case BUTTON_NONE:
       {
         d = NONE;
-         break;
       }
+      break;
       case BUTTON_RIGHT:
       {
          d = EAST;
@@ -181,18 +155,11 @@ void loop()
       case BUTTON_LEFT:
       {
         d = WEST;
-     }
-     break;
+      }
+      break;
      case BUTTON_SELECT:
      {
-        bool win = true;
-          for(int i = 0; i < MAX_MAZE_SIZE; i++){
-            if(guess[i] != maze[i]){
-              win = false;
-            }
-          }
-
-          if(win){
+          if(compare_guess()){
             lcd.begin( 16, 2 );
             lcd.setCursor( 0, 0 );
             lcd.print("NOTE YOUR EMER");
@@ -208,8 +175,10 @@ void loop()
         d = NONE;
      }
    }
+   if(guess_full() == false){
+      enter_dir(d);
+   }
    Serial.println(d);
-   enter_dir(d);
    print_guess();
    delay(50);
    }/*
